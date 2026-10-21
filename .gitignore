@@ -1,0 +1,12 @@
+# Node
+backend/node_modules/
+npm-debug.log*
+
+# Environment secrets — never commit real credentials
+backend/.env
+.env
+
+# OS/editor cruft
+.DS_Store
+Thumbs.db
+.vscode/
