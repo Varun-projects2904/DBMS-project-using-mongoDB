@@ -5,11 +5,11 @@ design, relational mapping, and normalization (1NF→BCNF) are what this grew
 out of. It now runs on **MongoDB**: the 14 normalized tables are mirrored
 one-to-one as 14 collections, and the three pieces of the repo share them.
 
-**Live demo:**   https://varun-projects2904.github.io/DBMS-Project/frontend/index.html
+**Live demo:**   https://varun-projects2904.github.io/DBMS-project-using-mongoDB/frontend/index.html
 (runs entirely client-side — login, shop, purchases, and a MongoDB console,
 all against an in-browser MongoDB engine, no server needed to try it)
 
-## Structure
+## Structure   
 
 ```
 stylestock/
