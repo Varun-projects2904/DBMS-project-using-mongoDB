@@ -147,9 +147,10 @@
   }
   .card-art{
     aspect-ratio:1/1; max-width:100%; display:flex; align-items:center; justify-content:center;
-    background:var(--panel-soft); padding:14px;
+    background:var(--panel-soft); padding:14px; position:relative; overflow:hidden;
   }
   .card-art svg{width:100%; height:100%;}
+  .card-photo{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center 30%; display:block; background:var(--panel-soft);}
   .card-body{padding:12px 14px 14px; display:flex; flex-direction:column; gap:3px;}
   .card-brand{font-size:10.5px; font-weight:700; letter-spacing:.04em; color:var(--coral-strong); text-transform:uppercase;}
   .card-name{font-family:var(--font-display); font-weight:600; font-size:15px; line-height:1.25; min-height:2.4em;}
@@ -406,7 +407,7 @@ var mingo=(()=>{var Or=Object.defineProperty;var Uo=Object.getOwnPropertyDescrip
     </div>
   </section>
 
-  <footer class="foot">Data lives only in this browser tab: an in-browser MongoDB engine (the mingo query library) plus localStorage for your changes. Nothing is sent anywhere — this login is a class-project demo, not real security.</footer>
+  <footer class="foot">Data lives only in this browser tab: an in-browser MongoDB engine (the mingo query library) plus localStorage for your changes. Nothing is sent anywhere — this login is a class-project demo, not real security. Product photos belong to their brands and to <a href="https://unsplash.com" target="_blank" rel="noopener">Unsplash</a>, used here for a non-commercial class project.</footer>
 </div>
 
 <script>
@@ -1365,6 +1366,41 @@ var mingo=(()=>{var Or=Object.defineProperty;var Uo=Object.getOwnPropertyDescrip
      5. SHOP — icons, catalog, cart-less buy flow
      ============================================================ */
   var PRODUCT_ICON = {1:'shirt',2:'shirt',3:'jeans',4:'jeans',5:'dress',6:'dress',7:'top',8:'top',9:'shoe',10:'shoe',11:'shoe',12:'belt',13:'scarf',14:'bag',15:'sunglasses',16:'shirt',17:'jeans'};
+  // Product photos, keyed by product_id, from the images/ folder next to this page.
+  // (An id starting 'photo-' would load an Unsplash stock photo instead.)
+  // If a photo can't load, the drawn icon underneath shows instead.
+  var PRODUCT_PHOTO = {
+    1: 'images/p1.jpg',     // white polo
+    2: 'images/p2.jpg',     // denim shirt
+    3: 'images/p3.jpg',     // straight-fit jeans
+    4: 'images/p4.jpg',     // slim tapered jeans
+    5: 'images/p5.jpg',     // maroon wrap midi dress
+    6: 'images/p6.jpg',     // floral dress
+    7: 'images/p7.jpg',     // white silk tie-neck blouse
+    8: 'images/p8.jpg',     // ribbed tank top
+    9: 'images/p9.jpg',     // canvas sneakers
+    10: 'images/p10.jpg',   // brown leather chelsea boots
+    11: 'images/p11.jpg',   // running shoes
+    12: 'images/p12.jpg',   // leather belt
+    13: 'images/p13.jpg',   // grey wool knit scarf
+    14: 'images/p14.jpg',   // canvas tote
+    15: 'images/p15.jpg',   // aviator sunglasses
+    16: 'images/p16.jpg',   // dino graphic tee
+    17: 'images/p17.jpg'    // cargo shorts
+  };
+  function photoUrl(productId){
+    var src = PRODUCT_PHOTO[productId];
+    if (!src) return null;
+    return src.indexOf('photo-') === 0 ? 'https://images.unsplash.com/' + src + '?auto=format&fit=crop&w=480&h=480&q=70' : src;
+  }
+  // swap a photo that fails to load for the drawn icon underneath it
+  function watchPhotos(container){
+    Array.prototype.forEach.call(container.querySelectorAll('img.card-photo'), function(img){
+      var drop = function(){ img.remove(); };
+      img.addEventListener('error', drop);
+      if (img.complete && img.naturalWidth === 0) drop();
+    });
+  }
   var COLOR_HEX = {
     White:'#F5F1E8', Blue:'#3E6FBF', Indigo:'#3B4B8C', Black:'#2B2320', Maroon:'#8C3B4B',
     Floral:'#E97F9E', Ivory:'#EFE3CC', Grey:'#8B8378', Tan:'#C7A17A', Navy:'#2C3E63',
@@ -1537,7 +1573,9 @@ var mingo=(()=>{var Or=Object.defineProperty;var Uo=Object.getOwnPropertyDescrip
       var variants = byProduct[p.product_id];
       var icon = svgIcon(PRODUCT_ICON[p.product_id] || 'shirt', COLOR_HEX[variants[bestVariantIndex(variants)].colour] || '#FF6B6B');
       return '<div class="product-card" id="card-'+p.product_id+'">' +
-        '<div class="card-art">'+icon+'</div>' +
+        '<div class="card-art">'+icon+
+          (photoUrl(p.product_id) ? '<img class="card-photo" src="'+photoUrl(p.product_id)+'" alt="'+escapeHtml(p.pname)+'" loading="lazy" referrerpolicy="no-referrer">' : '') +
+        '</div>' +
         '<div class="card-body">' +
           '<div class="card-brand">'+escapeHtml(p.brand_name)+'</div>' +
           '<div class="card-name">'+escapeHtml(p.pname)+'</div>' +
@@ -1551,6 +1589,7 @@ var mingo=(()=>{var Or=Object.defineProperty;var Uo=Object.getOwnPropertyDescrip
           '<div class="buy-flash" id="flash-'+p.product_id+'"></div>' +
         '</div></div>';
     }).join('');
+    watchPhotos($('productGrid'));
     prods.forEach(function(p){ wireCard(p.product_id, byProduct[p.product_id]); });
   }
 
